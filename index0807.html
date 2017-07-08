@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+
+<head>
+<meta charset="utf-8">
+<title>Hello...</title>
+<style type="text/css">
+#mainContent {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: large;
+	font-weight: bold;
+	background-color: #E3F0FB;
+	border-radius: 4px;
+	padding: 10px;
+	text-align: center;
+}
+.buttonStyle {
+	border-radius: 4px;
+	border: thin solid #F0E020;
+	padding: 5px;
+	background-color: #F8F094;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	font-weight: bold;
+	color: #663300;
+	/*width: 75px;*/
+	white-space: nowrap;
+    text-align: center;
+}
+
+.buttonStyle:hover {
+	border: thin solid #FFCC00;
+	background-color: #FCF9D6;
+	color: #996633;
+	cursor: pointer;
+}
+.buttonStyle:active {
+	border: thin solid #99CC00;
+	background-color: #F5FFD2;
+	color: #669900;
+	cursor: pointer;
+	
+}
+
+#svg1{
+    display: block;
+    margin: auto;
+}
+textarea{
+    resize: none;
+}
+</style>
+</head>
+<body>
+<div id="mainContent">
+<p id="helloText">כאוס ופרקטלים - דף עבודה</p>
+
+<textarea id="debugBox" autofocus rows="1" cols="10"  >
+
+</textarea>
+<label id="debug">:אורך יחידת מדידה</label>
+<br>
+
+<!--<textarea id="nol" rows="1" cols="10">0</textarea-->
+<span id="nol" style="color:blue">0</span>
+
+<label id="nolt">:סה"כ יחידות מדידה</label>
+<br>
+<button id="clickButton" class="buttonStyle" >מחק יחידה אחרונה</button>
+<button id="refreshButton" class="buttonStyle" >התחל מחדש</button>
+</div>
+<div id="topstuff" align="center">
+     
+<!--<input type="file" id="fileInput">-->
+</div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+
+
+<script> 
+
+var myButton = document.getElementById("clickButton");
+var startButton = document.getElementById("refreshButton");
+
+
+myButton.addEventListener('click', undoLasy, false);
+startButton.addEventListener('click', restart, false);
+
+
+
+
+var winX=0.625*screen.width;
+var winY=0.75*screen.height;
+var xMargin=20;
+var yMargin=20;
+
+var spacing=20;
+var currentLine=0
+var currentPoint=0
+var numOfLines=0
+var numberOfPoints=0
+var scaling;
+
+var circles=[];
+var lines=[];
+var lg=[];
+var stickLen
+//document.getElementById("debugBox").innerHTML=stickLen;
+
+var maps=["vectorGB","vectorKS","vectorNO","vectorEG","vectorIT","vectorJO","vectorFR","vectorIL","vectorUT"];
+
+function undoLasy() {
+lines[numOfLines-1].remove();
+numOfLines--;
+document.getElementById("nol").innerHTML=numOfLines;
+lines[numOfLines-1].attr("touchable",1);
+	
+}
+
+function restart() {
+   if (confirm("בטוח ?") == true) {
+    location.reload();
+} 
+}
+
+var dragLine=d3.drag()  
+             .on('start',function(d) { d3.select(this).style('opacity', 0.5); })
+             .on('drag',dragged)
+             .on('end',dragEnd);
+             
+function dragged(d){
+   // d3.select(this).attr('x2', d3.event.x)
+                 //  .attr('y2', d3.event.y); 
+    if  (d3.select(this).attr('touchable')==1){   
+        var x=d3.event.x;
+        var y=d3.event.y;
+        var firstX=Number(d3.select(this).attr('x1'));
+        var firstY=Number(d3.select(this).attr('y1'));
+        var dx=x-firstX;
+        var dy=y-firstY;
+        var dz=Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
+        var newX=firstX+stickLen*dx/dz;
+        var newY=firstY+stickLen*dy/dz;
+        d3.select(this).attr('x2', newX)
+                       .attr('y2', newY);
+        
+} }
+
+function dragEnd(d){
+    
+    d3.select(this).style('opacity',0.7);
+    if  (d3.select(this).attr('touchable')==1){  
+    createNewL(d);}
+}
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+function freezeOlderL(k){
+    for (i=0;i<k;i++){
+        lines[i].attr("touchable",0);
+    }
+}
+
+var svgT = d3.select("#topstuff").append("svg")
+                                     .attr("id","svgThumb1")
+                                     //.on("click", createPorL)
+                                     .attr("width", winX)
+                                     .attr("height", winY/10)
+                                     .attr("align","center")
+                                     .style("fill", "red")
+                                     .style("border", "1px solid black");
+
+d3.select("#svgThumb1").selectAll("image")
+    .data(maps)
+    .enter()
+    .append("image")
+    .attr("xlink:href",function(d){return d+".svg"})
+    .attr("x",function(d,i){return (xMargin/10)+i*(winX-2*xMargin)/10})
+    .attr("y",yMargin/10)
+    .attr("width",(winX-2*xMargin)/10)
+    .attr("height", (winY-2*yMargin)/10)
+    .attr("align","center")
+    .on("click",function(d) {loadbigMap(d+".svg")});
+    //.style("opacity",0.5);
+    
+
+
+var svgContainer = d3.select("body").append("svg")
+                                     .attr("id", "svg1")
+                                     .on("click", createPorL)
+                                     .attr("width", winX)
+                                     .attr("height", winY)
+                                     .attr("align","center")
+                                     .style("fill", "red")
+                                     .style("border", "1px solid black");
+
+function loadbigMap(h){
+    h="big"+h;
+    console.log(h);
+stickLen=parseInt(document.getElementById("debugBox").value);
+if (isNaN(stickLen))(stickLen=160);
+console.log(stickLen);
+d3.select("#svg1").selectAll("*").remove();
+d3.select("#svg1").append("image")
+    .attr("xlink:href",h)//"vectorGB.svg")
+    .attr("x",xMargin)
+    .attr("y",yMargin)
+    .attr("width", winX-2*xMargin)
+    .attr("height", winY-2*yMargin)
+    .attr("align","center")
+    .style("stroke","black")
+    .style("fill","red");
+    
+    //.style("opacity",0.5);
+    
+}
+
+function createPorL(d,i){
+     var point=d3.mouse(this);
+     var p = new Point(point[0], point[1]);
+     if (numOfLines==0) {
+         createFirstP(p);}
+         
+    /* else {createNewL(p);}    */ 
+}
+
+function createNewL(p){
+    var dx=Number(lines[numOfLines-1].attr('x2'))-Number(lines[numOfLines-1].attr('x1'));
+    var dy=Number(lines[numOfLines-1].attr('y2'))-Number(lines[numOfLines-1].attr('y1'));
+    var nx1=Number(lines[numOfLines-1].attr('x2'));
+    var ny1=Number(lines[numOfLines-1].attr('y2'));
+    var nx2=Number(lines[numOfLines-1].attr('x2'))+dx;
+    var ny2=Number(lines[numOfLines-1].attr('y2'))+dy;
+    lines[numOfLines]=d3.select("#svg1").append("line")
+        .attr("x1",nx1)
+        .attr("y1",ny1)
+        .attr("x2",nx2)
+        .attr("y2",ny2)
+        .attr("touchable",1)
+        .style("stroke-Width",8)
+        .style("stroke",(numOfLines%2 ? "red":"black"))
+        .call(dragLine);
+   
+   freezeOlderL(numOfLines); //prevents any line except current from being manipulated
+   numOfLines++;
+   document.getElementById("nol").innerHTML=numOfLines;
+   freezeOlderL();
+}
+
+function createFirstP(p) {
+   stickLen=parseInt(document.getElementById("debugBox").value);
+   if (isNaN(stickLen))(stickLen=100);
+    
+    lines[numOfLines]=d3.select("#svg1").append("line")
+        .attr("x1",p.x)
+        .attr("y1",p.y)
+        .attr("x2",p.x)
+        .attr("y2",p.y)
+        .attr("touchable",1)
+        .style("stroke-Width",8)
+        .style("stroke","black")
+        
+        //.transition()
+        //.duration(500)
+       // .ease(d3.easeBounce)
+       // .on("end",function(){document.getElementById("debugBox").innerHTML="on provoked";})
+        .attr("y2",p.y+stickLen)
+        .call(dragLine);
+        
+    
+    
+   
+    numOfLines++;
+    document.getElementById("nol").innerHTML=numOfLines;
+          
+}
+
+
+</script>
+
+</body>
+</html>
