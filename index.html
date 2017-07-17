@@ -51,11 +51,12 @@
 textarea{
     resize: none;
 }
-#debugBox,#nol,#chaos{float:right;}
+#debugBox,#nol,#tlen{float:right;}
 table
 {
     table-layout: fixed;
     width: 1000px;
+    
 }
 </style>
 </head>
@@ -63,17 +64,19 @@ table
 <div id="mainContent">
     <table id="gui" width="50%" style="margin:auto;">
     <col style="width:10%">
-    <col style="width:1%">
-    <col style="width:40%">
+    <col style="width:10%">
     <col style="width:15%">
     <col style="width:15%">
-    <col style="width:1%">
-    <col style="width:18%">
+    <col style="width:20%">
+    <col style="width:2%">
+    <col style="width:14%">
+    <col style="width:14%">
     
   <tr>
     <th><button id="refreshButton" class="buttonStyle" style="background:red">התחל מחדש</button></th>
     <th></th>
-    <th colspan="3"><span  id="chaos" style="font-size:40px">דף עבודה כאוס ופרקטלים</span></th>
+    <th></th>
+    <th colspan="4"><span  align="center" style="font-size:40px">דף עבודה כאוס ופרקטלים</span></th>
     
     <th></th>
     
@@ -81,6 +84,7 @@ table
   </tr>
   <tr>
     <td><button id="clickButton" class="buttonStyle" style="background:green" >מחק אחרון</button></td>
+    <td></td>
     <td></td>
     <td><textarea id="debugBox" autofocus rows="1" cols="10"></textarea></textarea></td>
     <td align="left"> :אורך סרגל מדידה</td>
@@ -90,7 +94,8 @@ table
   </tr>
   <tr>
     <td style="align:center"><span id="cName" style="color:blue"></span></td>
-    <td></td>
+    <td><span id="tlen"  style="color:blue">0</span></td>
+    <td align="left"> :סה"כ אורך</td>
     <td><span id="nol"  style="color:blue">0</span></td>
     <td align="left"> :סה"כ סרגלים</td>
     <td></button></td>
@@ -139,13 +144,14 @@ var lg=[];
 var stickLen
 //document.getElementById("debugBox").innerHTML=stickLen;
 
-var maps=["vectorGB","vectorKS","vectorNO","vectorEG","vectorIT","vectorJO","vectorFR","vectorIL","vectorUT"];
+var maps=["vectorGB","vectorKS","vectorNO","vectorEG","vectorIT","vectorJO","vectorFR","vectorIL","vectorUT","vectorbigIL"];
 var mapNames=["GB","","","","","",""]
 
 function undoLasy() {
 lines[numOfLines-1].remove();
 numOfLines--;
 document.getElementById("nol").innerHTML=numOfLines;
+document.getElementById("tlen").innerHTML=numOfLines*stickLen;
 lines[numOfLines-1].attr("touchable",1);
 	
 }
@@ -205,6 +211,7 @@ var svgT = d3.select("#topstuff").append("svg")
                                      .attr("align","center")
                                      .style("fill", "red")
                                      .style("border", "1px solid black");
+    
 
 d3.select("#svgThumb1").selectAll("image")
     .data(maps)
@@ -232,6 +239,9 @@ var svgContainer = d3.select("body").append("svg")
                                      .style("fill", "red")
                                      .style("border", "1px solid black");
 
+
+document.getElementById("svg1").innerHTML="gsgsgsgsrger yeryery rtrtrtrterttwrt";
+
 function loadbigMap(h){
 h="big"+h;
 numOfLines=0;
@@ -246,6 +256,7 @@ d3.select("#svg1").append("image")
     .attr("y",yMargin)
     .attr("width", winX-2*xMargin)
     .attr("height", winY-2*yMargin)
+    .on("mousedown",function(d,i,event) {if(i==7 && event.which == 3) window.alert("dgsrg");})
     .attr("align","center")
     .style("stroke","black")
     .style("fill","red");
@@ -283,6 +294,8 @@ function createNewL(p){
    freezeOlderL(numOfLines); //prevents any line except current from being manipulated
    numOfLines++;
    document.getElementById("nol").innerHTML=numOfLines;
+   document.getElementById("tlen").innerHTML=numOfLines*stickLen;
+   
    freezeOlderL();
 }
 
@@ -312,6 +325,7 @@ function createFirstP(p) {
    
     numOfLines++;
     document.getElementById("nol").innerHTML=numOfLines;
+    document.getElementById("tlen").innerHTML=numOfLines*stickLen
     }      
 }
 
@@ -331,6 +345,7 @@ window.onload = function() {
               var nimg=new Image();
               numOfLines=0;
               document.getElementById("nol").innerHTML=numOfLines;
+              document.getElementById("tlen").innerHTML=numOfLines*stickLen
              // nimg.src=reader.result;
               d3.select("#svg1").selectAll("*").remove();
 
