@@ -58,19 +58,90 @@ table
     width: 1000px;
     
 }
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+.inputfile + label {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: white;
+    border: 5px green;
+    background-color: black;
+    display: inline-block;
+}
+
+/*.inputfile:focus + label,*/
+.inputfile + label:hover {
+    background-color: red;
+}
+.inputfile + label {
+	cursor: pointer; /* "hand" cursor */
+}
 </style>
 </head>
 <body>
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+   
+    <img src="chaoshelp.JPG" alt="Smiley face">
+  </div>
+
+</div>    
 <div id="mainContent">
     <table id="gui" width="50%" style="margin:auto;">
-    <col style="width:10%">
+    <col style="width:12%">
     <col style="width:10%">
     <col style="width:15%">
     <col style="width:15%">
     <col style="width:20%">
     <col style="width:2%">
     <col style="width:14%">
-    <col style="width:14%">
+    <col style="width:12%">
     
   <tr>
     <th><button id="refreshButton" class="buttonStyle" style="background:red">התחל מחדש</button></th>
@@ -78,9 +149,9 @@ table
     <th></th>
     <th colspan="4"><span  align="center" style="font-size:40px">דף עבודה כאוס ופרקטלים</span></th>
     
-    <th></th>
     
-    <th></th>
+    
+    <th><button id=helpbutton class="buttonStyle">הצג הוראות</button></th>
   </tr>
   <tr>
     <td><button id="clickButton" class="buttonStyle" style="background:green" >מחק אחרון</button></td>
@@ -88,9 +159,9 @@ table
     <td></td>
     <td><textarea id="debugBox" autofocus rows="1" cols="10"></textarea></textarea></td>
     <td align="left"> :אורך סרגל מדידה</td>
-    <td></td>
+    <!--<td></td>-->
     
-    <td colspan="2"><input type="file" id="fileInput"><label for="file">טעינת קובץ תמונה מהמחשב</label></td>
+    <td align="right" colspan="3"><input type="file" name="file" id="fileInput" class="inputfile" align="right"><label for="fileInput">טעינת  תמונה מהמחשב</label></td>
   </tr>
   <tr>
     <td style="align:center"><span id="cName" style="color:blue"></span></td>
@@ -105,6 +176,16 @@ table
 </table>    
 
 </div>
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>text</p>
+  </div>
+
+</div>
+
 <div id="topstuff" align="center">
  
 
@@ -118,10 +199,15 @@ table
 var myButton = document.getElementById("clickButton");
 var startButton = document.getElementById("refreshButton");
 
+var hButton = document.getElementById("helpbutton");
+var modal = document.getElementById('myModal');
+var span = document.getElementsByClassName("close")[0];
+
 
 
 myButton.addEventListener('click', undoLasy, false);
 startButton.addEventListener('click', restart, false);
+hButton.addEventListener('click', showhelp, false);
 
 
 
@@ -240,7 +326,15 @@ var svgContainer = d3.select("body").append("svg")
                                      .style("border", "1px solid black");
 
 
-
+// var svgtext = d3.select("#svg1").append("text")
+//                                      .attr("id", "text1")
+//                                      .text("fwsefwefew")
+//                                      .attr("x",100)
+//                                      .attr("y",100)
+//                                      .attr("direction","RTL")
+//                                      .attr("font-family", "sans-serif")
+//                                      .attr("font-size", "100px")
+//                                      .attr("fill", "red");
 
 function loadbigMap(h){
 h="big"+h;
@@ -333,7 +427,7 @@ function createFirstP(p) {
 
 window.onload = function() {
     var fileInput = document.getElementById('fileInput');
-
+    
     fileInput.addEventListener('change', function(e) {
       //location.reload();
       var filename=fileInput.files[0];
@@ -362,7 +456,13 @@ window.onload = function() {
 reader.readAsDataURL(filename);
  } else window.alert("file type not supported")
  });
-    }
+}
+
+function showhelp(){
+   modal.style.display = "block"; 
+} 
+span.onclick = function() {
+    modal.style.display = "none";}
 </script>
 
 </body>
